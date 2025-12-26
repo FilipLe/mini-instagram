@@ -1,0 +1,25 @@
+<!-- 
+File: mini_insta/templates/mini_insta/create_comment_form.html 
+Author: Nguyen Le
+-->
+{% extends 'mini_insta/base.html' %}
+
+{% block content %}
+<div class="grid-container">
+    <header class="header">
+        <h2>Add Comment</h2>
+    </header>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="like-follow">Post Comment</button>
+    </form>
+
+    <br>
+
+    <a href="{% url 'show_post' post.pk %}">
+        <button type="button" class="like-follow">Cancel</button>
+    </a>
+</div>
+{% endblock %}

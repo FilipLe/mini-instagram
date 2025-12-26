@@ -1,0 +1,30 @@
+<!-- 
+File: mini_insta/templates/mini_insta/show_all_profiles.html 
+Author: Nguyen Le
+-->
+
+<!-- replace content in base placeholder -->
+{% extends 'mini_insta/base.html' %}
+
+<!-- load css -->
+{% load static %}
+
+    <!-- scriplet -->
+    {% block content %}
+        <div class="grid profile-grid">
+            <!-- loop through all profiles to display -->
+            {% for profile in profiles %}
+                <div class="profile-item">
+                    <!-- load photo by primary key-->
+                    <a href="{% url 'show_profile' profile.pk %}">
+                        <div class="crop">
+                            <img src="{{profile.profile_image_url}}">
+                        </div>
+                        <div class="profile-text">
+                            @{{ profile.username }} &lt;---&gt; {{ profile.display_name }}
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% endblock %}

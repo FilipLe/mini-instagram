@@ -1,0 +1,41 @@
+<!-- 
+File:mini_insta/templates/mini_insta/show_followers.html 
+Author: Nguyen Le
+-->
+
+{% extends 'mini_insta/base.html' %}
+{% block content %}
+    <div class="grid-container">
+        <!-- header -->
+        <header class="header">
+            <h2>Followers of @{{ profile.username }}</h2>
+        </header>
+
+        <!-- if profile has followers -->
+        {% if profile.get_followers %}
+            <div class="grid profile-grid">
+                <!-- iterate through the list of followers -->
+                {% for follower in profile.get_followers %}
+                    <div class="profile-item">
+                        <a href="{% url 'show_profile' follower.pk %}">
+                            <!-- display pfp of profile -->
+                            <div class="crop">
+                                <img src="{{ follower.profile_image_url }}">
+                            </div>
+                            <!-- display name and username -->
+                            <div class="profile-text">
+                                @{{ follower.username }} &lt;---&gt; {{ follower.display_name }}
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        
+        <!-- if profile does not have followers -->
+        {% else %}
+            <p class="no-followers"><b>No followers yet.</b></p>
+        {% endif %}
+    </div>
+    <br>
+    <br>
+{% endblock %}

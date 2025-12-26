@@ -1,0 +1,145 @@
+<!-- 
+File: mini_insta/templates/mini_insta/search_results.html 
+Author: Nguyen Le
+-->
+{% extends 'mini_insta/base.html' %}
+
+{% block content %}
+<div class="grid-container">
+    <header class="header">
+        <h2>Search results for "{{ query }}"</h2>
+    </header>
+
+    <!-- Matching Profiles -->
+    <section>
+        <h3>Profiles matching the query "{{query}}"</h3>
+
+        <!-- if a profile has matching text in query (based on bio text, user name, or display name)-->
+        {% if profiles %}
+            <div class="grid profile-grid">
+                <!-- iterate through the profiles -->
+                {% for p in profiles %}
+                    <div class="profile-item">
+                        <a href="{% url 'show_profile' p.pk %}">
+                            <div class="crop">
+                                <img src="{{ p.profile_image_url }}" alt="{{ p.username }}">
+                            </div>
+                            <div class="profile-text">
+                                @{{ p.username }} &lt;---&gt; {{ p.display_name }}
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        <!-- no profile matching query -->
+        {% else %}
+            <p>No profiles found.</p>
+        {% endif %}
+    </section>
+
+    <hr>
+
+    <!-- Matching Posts -->
+    <section>
+        <h3>Posts matching the query "{{ query }}"</h3>
+        <!-- if a post has matching text in query (based on caption of the post) -->
+        {% if posts %}
+            <!-- iterate through the matching posts -->
+            {% for post in posts %}
+                <div class="post">
+                    <!-- Post Photos -->
+                    <div class="post-grid">
+                        <!-- iterate and display the pictures of the queried post -->
+                        {% for photo in post.get_all_photos %}
+                            <div class="post-item">
+                                {% if photo.get_image_url %}
+                                    <img src="{{ photo.get_image_url }}" alt="Post image">
+                                {% else %}
+                                    <img src="https://i.postimg.cc/vmYMQw6k/temp-Image10-Mm-FH.avif" alt="Stock image">
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Likes -->
+                    <div class="likes">
+                        <!-- if post has likes -->
+                        {% if post.get_num_likes > 0 %}
+                            {% if post.get_num_likes == 1 %}
+                                Liked by <strong>@{{ post.get_most_recent_like.profile.username }}</strong>
+                            {% else %}
+                                <!-- user: most recent Like -->
+                                Liked by <strong>@{{ post.get_most_recent_like.profile.username }}</strong>
+                                <!-- count: other X-1 Likes -->
+                                and <strong>{{ post.get_num_likes|add:"-1" }} others</strong>
+                            {% endif %}
+                        <!-- post has no likes yet -->
+                        {% else %}
+                            No likes yet
+                        {% endif %}
+                    </div>
+
+                    <!-- Caption -->
+                    <div class="caption">
+                        <strong>@{{ post.profile.username }}</strong> {{ post.caption }}
+                    </div>
+
+                    <!-- like/unlike -->
+                    <!-- check that user is not trying to like own post -->
+                    {% if request.user.is_authenticated and request.user != post.profile.user %}
+                        <!-- if user already liked post, allow to unlike -->
+                        {% if request.user.profile in post.get_likes %}
+                            <form action="{% url 'unlike' post.pk %}" method="POST" style="display:inline; margin-left:10px;">
+                                {% csrf_token %}
+                                <button type="submit" class="like-follow">Unlike</button>
+                            </form>
+                            
+                        <!-- otherwise, allow to like post -->
+                        {% else %}
+                            <form action="{% url 'like' post.pk %}" method="POST" style="display:inline; margin-left:10px;">
+                                {% csrf_token %}
+                                <button type="submit" class="like-follow">Like</button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+
+                    <!-- Comments -->
+                    <div class="comments-section">
+                        <h3>Comments</h3>
+                        {% if post.get_all_comments %}
+                            <!-- iterate through all of the comments -->
+                            {% for comment in post.get_all_comments %}
+                                <div class="comment-item">
+                                    <!-- display username, comment, and time of comment -->
+                                    <strong>@{{ comment.profile.username }}</strong>
+                                    <span>— {{ comment.text }}</span><br>
+                                    <small>{{ comment.timestamp }}</small>
+                                </div>
+                            {% endfor %}
+                        <!-- there are no comments yet -->
+                        {% else %}
+                            <p>No comments yet. Be the first to comment!</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- add commments -->
+                    {% if request.user.is_authenticated %}
+                        <a href="{% url 'add_comment' post.pk %}" class="like-follow">
+                            Comment
+                        </a>
+                    {% endif %}
+
+                    <br><br>
+
+                    <hr>
+                </div>
+            {% endfor %}
+        <!-- no posts matching query -->
+        {% else %}
+            <p>No matching posts found.</p>
+        {% endif %}
+    </section>
+
+
+</div>
+{% endblock %}

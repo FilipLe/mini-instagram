@@ -1,0 +1,41 @@
+<!-- 
+File: mini_insta/templates/mini_insta/create_post_form.html 
+Author: Nguyen Le
+-->
+
+<!-- load base content -->
+{% extends 'mini_insta/base.html' %}
+
+<!-- load scriplet -->
+{% block content %}
+<div class="grid-container">
+    <header class="header">
+        <h2>
+            @{{profile.username}}: Create a Post
+        </h2>
+        <hr>
+    </header>
+
+    <div class="main">
+        <!-- Posting -->
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <table>
+                <!-- existing fields from Post -->
+                {{form.as_table}}
+
+                <!-- uploading actual image files -->
+                <input type="file" name="files" value="Select Photos" multiple>
+            </table>
+
+            <!-- submit action -->
+            <input type="submit" name="post" value="Post">
+        </form>
+
+        <!-- Back to profile -->
+        <a class="button-like" href="{% url 'show_profile' profile.pk %}">
+            <button>Back</button> 
+        </a>
+    </div>
+</div>
+{% endblock %}

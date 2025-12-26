@@ -1,0 +1,39 @@
+<!-- 
+File: mini_insta/templates/mini_insta/show_following.html 
+Author: Nguyen Le
+-->
+{% extends 'mini_insta/base.html' %}
+{% block content %}
+    <div class="grid-container">
+        <!-- header -->
+        <header class="header">
+            <h2>@{{ profile.username }} is following</h2>
+        </header>
+
+        <!-- if the profile follows some other profiles -->
+        {% if profile.get_following %}
+            <div class="grid profile-grid">
+                <!-- for loop to iterate through the list of profiles this profile follows -->
+                {% for followed in profile.get_following %}
+                    <div class="profile-item">
+                        <a href="{% url 'show_profile' followed.pk %}">
+                            <!-- display pfp -->
+                            <div class="crop">
+                                <img src="{{ followed.profile_image_url }}">
+                            </div>
+                            <!-- display user name and display name -->
+                            <div class="profile-text">
+                                @{{ followed.username }} &lt;---&gt; {{ followed.display_name }}
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        
+        <!-- if the profile doesnt follow anyone else -->
+        {% else %}
+            <p class="no-following"><b>Not following anyone yet.</b></p>
+        {% endif %}
+    </div>
+    <br><br>
+{% endblock %}

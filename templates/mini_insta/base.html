@@ -1,0 +1,123 @@
+<!-- 
+File: mini_insta/templates/mini_insta/base.html 
+Author: Nguyen Le
+-->
+
+<!-- load css -->
+{% load static %}
+
+<html>
+    <head>
+        <title>MiniInsta</title>
+        <link rel="stylesheet" href="{% static 'styles-mini-insta.css' %}">
+    </head>
+
+    <body>
+        <main class="grid-container">
+            <!-- header -->
+            <header>
+                <h2>MiniInsta: Showing all Profiles</h2>
+            </header>
+
+            <!-- scriplet block -->
+            {% block content %}
+                
+            {% endblock %}
+        </main>
+    </body>
+
+    <!-- navigation -->
+    <footer class="footer">
+        <div class="footer-container">     
+
+            <div class="footer-left">
+                <!-- debugging statement to check if user is logged in or not -->
+                {% if request.user.is_authenticated %}
+                    Logged in as {{request.user}}
+                {% else %}
+                    Not logged in
+                {% endif %}
+            </div>
+
+            <div class="footer-center">
+                <!-- if we are in a profile page -->
+                {% if profile %}
+
+                    <!-- if logged in user is in own profile page, footer will show button that takes to post feed, profile picture (links to profile), create post button, search button -->
+                    {% if request.user == profile.user %}
+
+                        <!-- view all profiles -->
+                        <a href="{% url 'show_all_profiles' %}" class="footer-btn">
+                            HOME
+                        </a>
+                        
+                        <!-- links to this profile's post feed -->
+                        <a href="{% url 'show_feed' %}" class="footer-btn">FEED</a>
+
+                        <!-- pfp -->
+                        <div class="floating-pfp">
+                            <a class="profile-image" href="{% url 'show_profile' profile.pk %}">
+                                <img src="{{ profile.profile_image_url }}" alt="{{ profile.name }}">
+                            </a>
+                        </div>
+
+                        <!-- search -->
+                        <a href="{% url 'search' %}" class="footer-btn">
+                            SEARCH
+                        </a>
+
+                        <!-- create post page -->
+                        <a href="{% url 'create_post' %}" class="footer-btn">
+                            CREATE POST
+                        </a>
+
+                    <!-- if viewing another user's profile, only show pfp and navigation back to home -->
+                    {% else %}
+                        <!-- pfp -->
+                        <div class="floating-pfp">
+                            <a class="profile-image" href="{% url 'show_profile' profile.pk %}">
+                                <img src="{{ profile.profile_image_url }}" alt="{{ profile.name }}">
+                            </a>
+                        </div>
+
+                        <a href="{% url 'show_all_profiles' %}" class="footer-btn">
+                            HOME
+                        </a>
+
+                    {% endif %}
+
+                {% else %}
+                    <!-- if no profile in context, links to show all profiles page -->
+                    <a href="{% url 'show_all_profiles' %}" class="footer-btn">
+                        HOME
+                    </a>
+
+                {% endif %}
+            </div>
+
+            <div class="footer-right">
+                <!-- if user is logged in, allow to log out -->
+                {% if request.user.is_authenticated %}
+
+                    <!-- log out option for logged in user -->
+                    <form action="{% url 'logout' %}" method="POST" class="logout-form">
+                        {% csrf_token %}
+                        <input type="submit" value="LOGOUT" class="footer-btn">
+                    </form>
+
+                    <!-- direct link to own profile for logged in user -->
+                    <a href="{% url 'profile' %}" class="footer-btn">
+                        MY PROFILE
+                    </a>
+
+                <!-- if user is logged out, allow login or register -->
+                {% else %}
+                
+                    <a href="{% url 'login' %}" class="footer-btn">LOGIN</a>
+                    <a href="{% url 'create_profile' %}" class="footer-btn">REGISTER</a>
+
+                {% endif %}
+            </div>
+        </div>
+    </footer>
+</html>

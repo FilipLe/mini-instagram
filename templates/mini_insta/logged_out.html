@@ -1,0 +1,27 @@
+<!-- 
+File: mini_insta/templates/mini_insta/logged_out.html 
+Author: Nguyen Le
+-->
+{% extends "mini_insta/base.html" %}
+
+{% block content %}
+    <h2>Logged Out</h2>
+    <p>You have been successfully logged out.</p>
+
+    <!-- allow user to log in again -->
+    <p>
+        <a class="button-like" href="{% url 'login' %}">
+            <button>Log in again</button>
+        </a>
+    </p>
+
+    <br>
+
+    <!-- allow user to go home -->
+    <p>
+        <a class="button-like" href="{% url 'show_all_profiles' %}">
+            <button>Back to Home</button>
+        </a>
+    </p>
+
+{% endblock %}

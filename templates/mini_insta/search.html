@@ -1,0 +1,29 @@
+<!-- 
+File: mini_insta/templates/mini_insta/search.html 
+Author: Nguyen Le
+-->
+{% extends 'mini_insta/base.html' %}
+
+{% block content %}
+<div class="grid-container">
+    <!-- header -->
+    <header class="header">
+        <h2>Search Posts or Profiles</h2>    
+    </header>
+    <b>@{{profile.username}}</b>
+    
+
+    <div>Search for text, tags, or people:</div>
+
+    <!-- form to search for profiles / posts -->
+    <form action="{% url 'search' %}" method="GET">
+        <input type="text" name="query" placeholder="Search..." required>
+        <br><br>
+        <button type="submit">Search</button>
+    </form>
+    <br>
+    
+    <!-- take back to user's profile page -->
+    <a href="{% url 'show_profile' profile.pk %}"><button>Back</button></a>
+</div>
+{% endblock %}

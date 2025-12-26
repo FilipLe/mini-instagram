@@ -1,0 +1,40 @@
+<!--
+File: mini_insta/templates/mini_insta/update_profile_form.html
+Author: Nguyen Le
+-->
+
+{% extends 'mini_insta/base.html' %}
+
+{% block content %}
+<div class="grid-container">
+    <header class="header">
+        <h2>
+            @{{profile.username}}: Update Profile
+        </h2>
+    </header>
+
+    
+    <!-- form section -->
+    <div>
+        <!-- form to enter details -->
+        <form action="{% url 'update_profile' %}" method="POST">
+            {% csrf_token %}
+            <table>
+                {{form.as_table}}
+            </table>
+
+            <input type="submit" name="submit" value="Update">
+        </form>
+
+        <!-- separate form for a cancel button -->
+        <form action="{% url 'show_profile' profile.pk %}" method="GET">
+            <input type="submit" value="Cancel">
+        </form>
+    </div>
+
+    <p>
+        <br><br>
+    </p>
+
+</div>
+{% endblock %}

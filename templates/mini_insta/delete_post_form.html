@@ -1,0 +1,56 @@
+<!-- 
+File: mini_insta/templates/mini_insta/delete_post_form.html 
+Author: Nguyen Le
+-->
+{% extends 'mini_insta/base.html' %}
+
+{% block content %}
+<div class="grid-container">
+    <header class="header">
+        <h2>
+            @{{profile.username}}: Delete Post?
+        </h2>
+    </header>
+
+    <!-- show main profile information -->
+    <div class="grid profile-header">
+        <div class="profile-image">
+            <a href="{% url 'show_profile' profile.pk %}">
+                <img src="{{profile.profile_image_url}}" alt="{{profile.profile_image_url}}">
+            </a>
+        </div>
+        <div>
+            <strong>@{{profile.username}}</strong><br>
+            {{post.timestamp}}
+        </div>
+    </div>
+
+    <!-- form to submit delete request -->
+    <form method="POST">
+        {% csrf_token %}
+        <input type="submit" value="Confirm Delete">
+    </form>
+
+    <!-- form to cancel the delete request -->
+    <form action="{% url 'show_profile' profile.pk %}" method="GET">
+        {% csrf_token %}
+        <input type="submit" value="Cancel">
+    </form>
+    
+
+    <!-- show post with all photos -->
+    <div class="post-grid">
+        <!-- loop through all the photos -->
+        {% for photo in post.get_all_photos %}
+            <div class="post-item">
+                {% if photo.get_image_url%}
+                    <img src="{{photo.get_image_url}}">
+                {% else %}
+                    <h3> No Image </h3>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

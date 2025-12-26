@@ -1,0 +1,108 @@
+<!-- 
+File: mini_insta/templates/mini_insta/show_profile.html 
+Author: Nguyen Le
+-->
+
+<!-- replace content in base placeholder -->
+{% extends 'mini_insta/base.html' %}
+
+<!-- add onto base content -->
+{% block content %}
+    <div class="grid-container">
+
+        <!-- header that accesses the username attributes -->
+        <header class="header">
+            <h2>MiniInsta: @{{profile.username}}</h2>
+        </header>
+        
+        <!-- show main profile information -->
+        <div class="grid profile-header">
+            <div class="profile-image">
+                <img src="{{profile.profile_image_url}}">
+            </div>
+            <div class="profile-info">
+                <h2>{{profile.display_name}}</h2>
+                <div class="grid profile-header">
+                    <!-- post count -->
+                    <div class="profile-header-item">
+                        <strong>{{profile.get_all_posts.count}}</strong> <br> 
+                        posts
+                    </div>
+                    <!-- num followers -->
+                    <a class="profile-header-item" href="{% url 'show_followers' profile.pk %}">
+                        <strong>{{profile.get_num_followers}}</strong><br>
+                        followers
+                    </a>
+                    <!-- num following -->
+                    <a class="profile-header-item" href="{% url 'show_following' profile.pk %}">
+                        <strong>{{profile.get_num_following}}</strong><br>
+                        following
+                    </a>
+                </div>
+
+                <!-- follow/unfollow -->
+                <!-- check that user is not trying to follow own profile -->
+                {% if request.user.is_authenticated and request.user != profile.user %}
+                    <!-- if in follower's list, allow unfollow -->
+                    {% if request.user.profile in profile.get_followers %}
+                        <form action="{% url 'unfollow' profile.pk %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="like-follow">Unfollow</button>
+                        </form>
+                    <!-- otherwise, allow to follow the page -->
+                    {% else %}
+                        <form action="{% url 'follow' profile.pk %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="like-follow">Follow</button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+    <!-- retrieve bio_text attribute of profile -->
+    {{profile.bio_text|linebreaks}}
+
+    <br>
+
+    <!-- retrieve join date -->
+    User joined on: {{profile.join_date}}
+
+    <!-- Update Profile button -->
+    {% if request.user == profile.user and request.user.is_authenticated %}
+    <div class="button-row">
+        <a class="button-like" href="{% url 'update_profile' %}">
+            <button>Update Profile</button>
+        </a>
+    </div>
+    {% endif %}
+    
+    <!-- post section -->
+    <div>
+        <h2>Posts</h2>
+        {% if profile.get_all_posts%}
+        <div class="grid post-grid">
+            <!-- for loop to display all posts of a profile -->
+            {% for post in profile.get_all_posts %}
+                <div class="post-item">
+                    <!-- link picture to its post page -->
+                    <a href="{% url 'show_post' post.pk %}">
+                        <!-- display first picture of post series -->
+                        {% if post.get_all_photos.first %}
+                            <img src="{{ post.get_all_photos.first.get_image_url }}">
+                        {% else %}
+                            <img src="https://i.postimg.cc/vmYMQw6k/temp-Image10-Mm-FH.avif" alt="stock image">
+                        {% endif %}
+
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <h2>No posts yet, coming in the future parts soon!</h2>
+        <br><br>
+        {% endif %}
+    </div>
+{% endblock %}

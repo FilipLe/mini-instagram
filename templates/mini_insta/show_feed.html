@@ -1,0 +1,131 @@
+<!-- 
+File: mini_insta/templates/mini_insta/show_feed.html 
+Author: Nguyen Le
+-->
+
+{% extends 'mini_insta/base.html' %}
+
+{% block content %}
+<div class="grid-container">
+    <!-- Main profile's header -->
+    <header class="header">
+        <h2>@{{profile.username}}'s Feed</h2>
+    </header>
+
+    <!-- profiles you follow have posted -->
+    {% if posts %}
+        {% for post in posts %}
+        <div class="post-feed-item">
+
+            <!-- Posted profile's header: profile info -->
+            <div class="grid profile-header">
+                <div class="profile-image">
+                    <a href="{% url 'show_profile' post.profile.pk %}">
+                        <img src="{{ post.profile.profile_image_url }}" alt="{{ post.profile.username }}">
+                    </a>
+                </div>
+                <div>
+                    <strong>@{{ post.profile.username }}</strong><br>
+                    {{ post.timestamp }}
+                </div>
+            </div>
+
+            <!-- Post photo -->
+            <div class="post-grid">
+                {% for photo in post.get_all_photos %}
+                    <div class="post-item">
+                        <a href="{% url 'show_post' post.pk %}">
+                            {% if photo.get_image_url %}
+                                <img src="{{ photo.get_image_url }}">
+                            {% else %}
+                                <img src="https://i.postimg.cc/vmYMQw6k/temp-Image10-Mm-FH.avif" alt="stock image">
+                            {% endif %}
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Likes -->
+            <div>
+                <!-- conditional to check number of likes -->
+                {% if post.get_num_likes > 0 %}
+                    <!-- There is only 1 like -->
+                    {% if post.get_num_likes == 1 %}
+                        Liked by <strong>@{{ post.get_most_recent_like.profile.username }}</strong>
+                    {% else %}
+                        <!-- user: most recent Like -->
+                        Liked by <strong>@{{ post.get_most_recent_like.profile.username }}</strong>
+                        <!-- count: other X-1 Likes -->
+                        and <strong>{{ post.get_num_likes|add:"-1" }} others</strong>
+                    {% endif %}
+                <!-- if there are no likes yet -->
+                {% else %}
+                    No likes yet
+                {% endif %}
+            </div>
+
+            <!-- Caption -->
+            <div>
+                <strong>@{{ post.profile.username }}</strong> {{ post.caption }}
+            </div>
+
+            <!-- like/unlike -->
+            <!-- check that user is not trying to like own post -->
+            {% if request.user.is_authenticated and request.user != post.profile.user %}
+                <!-- if user already liked post, allow to unlike -->
+                {% if request.user.profile in post.get_likes %}
+                    <form action="{% url 'unlike' post.pk %}" method="POST" style="display:inline; margin-left:10px;">
+                        {% csrf_token %}
+                        <button type="submit" class="like-follow">Unlike</button>
+                    </form>
+                    
+                <!-- otherwise, allow to like post -->
+                {% else %}
+                    <form action="{% url 'like' post.pk %}" method="POST" style="display:inline; margin-left:10px;">
+                        {% csrf_token %}
+                        <button type="submit" class="like-follow">Like</button>
+                    </form>
+                {% endif %}
+            {% endif %}
+
+            <!-- Comments -->
+            <div class="comments-section">
+                <h3>Comments</h3>
+                {% if post.get_all_comments %}
+                    <!-- iterate through all of the comments -->
+                    {% for comment in post.get_all_comments %}
+                        <div class="comment-item">
+                            <!-- display username, comment, and time of comment -->
+                            <strong>@{{ comment.profile.username }}</strong>
+                            <span>— {{ comment.text }}</span><br>
+                            <small>{{ comment.timestamp }}</small>
+                        </div>
+                    {% endfor %}
+                <!-- there are no comments yet -->
+                {% else %}
+                    <p>No comments yet. Be the first to comment!</p>
+                {% endif %}
+            </div>
+
+            <!-- add commments -->
+            {% if request.user.is_authenticated %}
+                <a href="{% url 'add_comment' post.pk %}" class="like-follow">
+                    Comment
+                </a>
+            {% endif %}
+
+            <br>
+            <br>
+
+            <hr>
+
+            <br>
+
+        </div>
+        {% endfor %}
+    <!-- there are no posts by the profiles you follow yet -->
+    {% else %}
+        <h2><p>No posts in your feed yet!</p></h2>
+    {% endif %}
+</div>
+{% endblock %}
