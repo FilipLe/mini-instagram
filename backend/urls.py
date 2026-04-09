@@ -39,4 +39,14 @@ urlpatterns = [
     path('logout_confirmation/', LogoutConfirmationView.as_view(), name="logout_confirmation"), # logout confirmation 
     path('logout/', auth_views.LogoutView.as_view(next_page='logout_confirmation'), name="logout"), # logout function
     path('create_profile/', CreateProfileView.as_view(), name='create_profile'), # creating new User Profile function
+    
+    
+    # REST API endpoints for React Native client
+    path('api/profiles/', ProfileListAPIView.as_view(), name='api_profile_list'), # api endpoint for list of profiles
+    path('api/profiles/<int:pk>/', ProfileDetailAPIView.as_view(), name='api_profile_detail'), # api endpoint for viewing specific profile
+    path('api/profiles/<int:profile_id>/posts/', ProfilePostsAPIView.as_view(), name='api_profile_posts'), # api endpoint for viewing specific profile's posts
+    path('api/profiles/<int:profile_id>/feed/', ProfileFeedAPIView.as_view(), name='api_profile_feed'), # api endpoint for viewing specific profile's feed
+    path('api/posts/create/', CreatePostAPIView.as_view(), name='api_create_post'), # api endpoint to create post
+    path('api/auth/login/', LoginAPIView.as_view(), name='api_login'), # api endpoint to log in an authenticated user
+    path('api/auth/user/', CurrentUserAPIView.as_view(), name='api_current_user'), # api end point to authenticate a user
 ]

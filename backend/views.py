@@ -454,3 +454,122 @@ class UnlikeView(MyLoginRequiredMixin, TemplateView):
         # Delete the Like relationship if the profile matches the liker of the Post
         Like.objects.filter(post=post, profile=liker).delete()
         return redirect('show_post', pk=kwargs['pk'])
+    
+
+'''
+DJANGO REST API VIEWS
+'''
+from django.contrib.auth import authenticate
+from django.shortcuts import get_object_or_404
+from rest_framework import generics, status
+from rest_framework.authtoken.models import Token
+from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from .models import Photo, Post, Profile
+from .serializers import PostSerializer, ProfileSerializer, UserSerializer
+
+
+class ProfileListAPIView(generics.ListAPIView):
+    queryset = Profile.objects.all().order_by("username")
+    serializer_class = ProfileSerializer
+
+
+class ProfileDetailAPIView(generics.RetrieveAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+
+
+class ProfilePostsAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, profile_id):
+        profile = get_object_or_404(Profile, pk=profile_id)
+        posts = Post.objects.filter(profile=profile).order_by("-timestamp")
+        serializer = PostSerializer(posts, many=True, context={"request": request})
+        return Response(serializer.data)
+
+
+class ProfileFeedAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, profile_id):
+        profile = get_object_or_404(Profile, pk=profile_id)
+        posts = profile.get_post_feed()
+        serializer = PostSerializer(posts, many=True, context={"request": request})
+        return Response(serializer.data)
+
+
+class CreatePostAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        profile = get_object_or_404(Profile, user=request.user)
+        caption = request.data.get("caption", "").strip()
+
+        if not caption:
+            return Response(
+                {"error": "caption is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        post = Post.objects.create(profile=profile, caption=caption)
+
+        files = request.FILES.getlist("photos")
+        if files:
+            for image_file in files:
+                Photo.objects.create(post=post, image_file=image_file)
+        else:
+            # Keep behavior consistent with the web view fallback.
+            Photo.objects.create(post=post, image_file="default.png")
+
+        serializer = PostSerializer(post, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class LoginAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+
+        if not username or not password:
+            return Response(
+                {"error": "username and password required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user = authenticate(username=username, password=password)
+        if not user:
+            return Response(
+                {"error": "invalid credentials"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        token, _ = Token.objects.get_or_create(user=user)
+
+        profile = get_object_or_404(Profile, user=user)
+        return Response(
+            {
+                "token": token.key,
+                "user": UserSerializer(user).data,
+                "profile": ProfileSerializer(profile).data,
+            }
+        )
+
+
+class CurrentUserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        profile = get_object_or_404(Profile, user=request.user)
+        return Response(
+            {
+                "user": UserSerializer(request.user).data,
+                "profile": ProfileSerializer(profile).data,
+            }
+        )

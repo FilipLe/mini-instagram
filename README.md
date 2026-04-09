@@ -1,6 +1,6 @@
 # Mini Insta
 
-A simple Instagram clone built with Django. Users can create profiles, post photos with captions, follow others, like and comment on posts, and view personalized feeds.
+A simple Instagram clone built with Django REST Framework and React Native. Users can create profiles, post photos with captions, follow others, like and comment on posts, and view personalized feeds.
 
 ## Features
 - User authentication (register, login, logout)
@@ -17,10 +17,11 @@ A simple Instagram clone built with Django. Users can create profiles, post phot
 ## Technologies Used
 - Python 3.x
 - Django 4.x (or compatible version)
-- HTML5 & CSS3 for frontend
+- HTML5 & CSS3 for web frontend
+- React Native Expo for mobile frontend
 - SQLite (default database, can be swapped)
 
-## Installation
+## Installation (Django support for now)
 1. Clone the repository:
    ```
    git clone https://github.com/FilipLe/mini-instagram.git
@@ -49,6 +50,13 @@ A simple Instagram clone built with Django. Users can create profiles, post phot
    python manage.py runserver
    ```
    Open `http://127.0.0.1:8000/` in your browser.
+
+## React Native Frontend
+TBD
+
+## Authentication Flow
+TBD
+
 
 ## Usage
 - Register a new account via the "Register" link.
